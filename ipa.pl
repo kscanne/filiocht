@@ -14,6 +14,9 @@ binmode STDIN, ":utf8";
 binmode STDOUT, ":utf8";
 binmode STDERR, ":utf8";
 
+if ($#ARGV != 0) {
+	die "Usage: $0 FP.txt\n";
+}
 my $ipafile = $ARGV[0];
 
 my %ipa;
