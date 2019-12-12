@@ -8,12 +8,21 @@ binmode STDIN, ":utf8";
 binmode STDOUT, ":utf8";
 binmode STDERR, ":utf8";
 
+my $usaid = "Usage: $0 [-a|-f]\n-a = amhrán an ghréasáin\n-f = foclóir rímeanna\n";
+die $usaid if ($#ARGV != 0);
+my $brat = $ARGV[0];
+die $usaid unless ($brat =~ /^-[af]$/);
+
 # settings...
 # if the max/min syllables are tweaked, can probably tweak the
 # max/min character counts allowed in the driver script file.sh
 my $minsyls=7;
 my $maxsyls=14;
 my $queuesize=1;  # max we'll keep with a given rhyme
+
+if ($brat eq '-f') {
+	$minsyls=0;
+}
 
 ####################################################################
 # keys are rhyme, value is arrayref of sentences ending in that rhyme
@@ -139,7 +148,7 @@ while (<STDIN>) {
 				#print "IPA: $curripa\n";
 				#print "Syllables: $syls\n";
 				#print "Rhyme: $rim\n";
-				if (exists($storas{$rim}) and scalar @{$storas{$rim}} > 0) {
+				if ($brat eq '-a' and exists($storas{$rim}) and scalar @{$storas{$rim}} > 0) {
 					# anything in array should have same last word; no need to loop
 					my $prev = $storas{$rim}->[0];
 					(my $prevsent, my $previpa) = $prev =~ m/^(.+)\t(.+)$/;
@@ -162,6 +171,22 @@ while (<STDIN>) {
 	else {
 		$curripa .= $_;
 		$curripa .= ' ';
+	}
+}
+
+if ($brat eq '-f') {
+	for my $r (keys %storas) {
+		my %seenlc;
+		my @rhyming;
+		for my $w (@{$storas{$r}}) {
+			$w =~ s/\t.*//;
+			unless (exists($seenlc{lc($w)})) {
+				push @rhyming, $w;
+				$seenlc{lc($w)} = 1;
+			}
+		}
+		next if (scalar @rhyming < 2);
+		print join(', ',@rhyming)."\n";
 	}
 }
 

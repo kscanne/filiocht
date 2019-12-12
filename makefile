@@ -1,5 +1,6 @@
 DIOLAIM=${HOME}/gaeilge/diolaim
 NGRAMS=${HOME}/gaeilge/ngram
+ISPELL=${HOME}/gaeilge/ispell/ispell-gaeilge
 ITWEETS=${HOME}/gaeilge/crubadan/twitter
 SITE=${HOME}/public_html/amhran
 FOCLOIRPOCA=${HOME}/seal/irishcompleted/Focloir-Poca-GB-Original
@@ -28,7 +29,13 @@ x0: amhran.txt
 	split -d -a 1 -l `cat amhran.txt | wc -l | sed 's/.$$//'` amhran.txt
 
 amhran.txt: corpus.txt filiocht.pl $(FOCLOIRPOCA)/FP.txt iarmhir.csv reimir.csv ipa.pl
-	cat corpus.txt | randomize | perl ipa.pl $(FOCLOIRPOCA)/FP.txt | perl filiocht.pl > $@
+	cat corpus.txt | randomize | perl ipa.pl $(FOCLOIRPOCA)/FP.txt | perl filiocht.pl -a > $@
+
+focloir.txt: rawwords.txt filiocht.pl $(FOCLOIRPOCA)/FP.txt iarmhir.csv reimir.csv ipa.pl
+	 cat rawwords.txt | perl ipa.pl $(FOCLOIRPOCA)/FP.txt | perl filiocht.pl -f | sort -u | sort -t ',' -k1,1 -k2,2 | sed 's/^/\n/' > $@
+
+rawwords.txt: $(ISPELL)/aspell.txt
+	cat $(ISPELL)/aspell.txt | demut | egrep -v '^.h' | keepif $(ISPELL)/aspell.txt | sort -u > $@
 
 corpus.txt:
 	(cat $(DIOLAIM)/l/T-* $(DIOLAIM)/l/IB-* $(DIOLAIM)/l/Hussey $(DIOLAIM)/l/WP* | togail ga makecorp | egrep '.{21}' | egrep -v '.{75}' | egrep -v '[►▼]'; cat ${ITWEETS}/sonrai/ga-tweets.txt | sed 's/^[0-9]*\t[0-9]*\t//' | de-entify | sed 's/^RT @[A-Za-z0-9_][A-Za-z0-9_]*: //' | sed 's/^RT @[A-Za-z0-9_][A-Za-z0-9_]*: //' | sort -u) | randomize > $@
