@@ -31,8 +31,16 @@ x0: amhran.txt
 amhran.txt: corpus.txt filiocht.pl $(FOCLOIRPOCA)/FP.txt iarmhir.csv reimir.csv ipa.pl
 	cat corpus.txt | randomize | perl ipa.pl $(FOCLOIRPOCA)/FP.txt | perl filiocht.pl -a > $@
 
+foc.pdf: foc.tex sonrai.tex
+	pdflatex foc
+	sleep 5
+	pdflatex foc
+
+sonrai.tex: focloir.txt
+	cat focloir.txt | egrep -v '^$$' | sed 's/^/\\item /' | sed 's/$$/./' > $@
+
 focloir.txt: rawwords.txt filiocht.pl $(FOCLOIRPOCA)/FP.txt iarmhir.csv reimir.csv ipa.pl
-	 cat rawwords.txt | perl ipa.pl $(FOCLOIRPOCA)/FP.txt | perl filiocht.pl -f | sort -u | sort -t ',' -k1,1 -k2,2 | sed 's/^/\n/' > $@
+	 cat rawwords.txt | egrep -v '^an-' | perl ipa.pl $(FOCLOIRPOCA)/FP.txt | perl filiocht.pl -f | shuf | sed 's/^/\n/' > $@
 
 rawwords.txt: $(ISPELL)/aspell.txt
 	cat $(ISPELL)/aspell.txt | demut | egrep -v '^.h' | keepif $(ISPELL)/aspell.txt | sort -u > $@
@@ -49,4 +57,4 @@ clean:
 
 distclean:
 	make clean
-	rm -f corpus.txt corpusmor.txt amhran.txt
+	rm -f corpus.txt corpusmor.txt amhran.txt rawwords.txt focloir.txt sonrai.tex foc.pdf
