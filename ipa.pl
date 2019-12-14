@@ -76,7 +76,7 @@ sub strip_suffixes {
 			my $repl = $rule->[0];
 			my $ans = $t;
 			$ans =~ s/$tomatch$/$repl/;
-			if (exists($ipa{$ans})) {
+			if (exists($ipa{$ans}) and $ipa{$ans} =~ m/$rule->[2]$/) {
 				$suffixrule = $rule;
 				return $ans;
 			}
