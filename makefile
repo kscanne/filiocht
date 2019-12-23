@@ -57,4 +57,4 @@ clean:
 
 distclean:
 	make clean
-	rm -f corpus.txt corpusmor.txt amhran.txt rawwords.txt focloir.txt sonrai.tex foc.pdf
+	rm -f corpus.txt corpusmor.txt amhran.txt rawwords.txt focloir.txt sonrai.tex foc.pdf foc.aux foc.out
